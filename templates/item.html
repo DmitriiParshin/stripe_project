@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title>Buy {{ item.name }}</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+  </head>
+  <body>
+    <h1>{{ item.name }}</h1>
+    <p>{{ item.description }}</p>
+    <p>{{ item.price }}</p>
+    <button type="button" id="buy-button">Buy</button>
+    {% csrf_token %}
+  </body>
+  <script type="text/javascript">
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    var stripe = Stripe('{{ STRIPE_PUBLIC_KEY }}');
+    var buyButton = document.getElementById('buy-button');
+    buyButton.addEventListener('click', function () {
+      fetch("{% url 'buy' item.id %}", {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrftoken
+        }
+      })
+      .then(function (response) {
+          return response.json();
+      })
+      .then(function (session) {
+          return stripe.redirectToCheckout({ sessionId: session.id });
+      })
+      .then(function (result) {
+        if (result.error) {
+          alert(result.error.message);
+        }
+      })
+      .catch(function (error) {
+        console.error("Error:", error);
+      });
+    });
+  </script>
+</html>
+
