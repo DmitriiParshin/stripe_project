@@ -3,7 +3,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 
 from items.models import Item
 
@@ -21,11 +21,10 @@ class BuyView(View):
                 {
                     'price_data': {
                         'currency': 'usd',
-                        'unit_amount': 1,
+                        'unit_amount': item.price,
                         'product_data': {
                             'name': item.name,
                             'description': item.description,
-                            # 'price': item.price,
                         },
                     },
                     'quantity': 1,
@@ -35,8 +34,8 @@ class BuyView(View):
                 'item_id': item.id
             },
             mode='payment',
-            success_url='/success/',
-            cancel_url='/cancel/',
+            success_url=settings.DOMAIN + '/success/',
+            cancel_url=settings.DOMAIN + '/cancel/',
         )
         return JsonResponse({
             'id': session.id,
@@ -48,8 +47,16 @@ class ItemView(DetailView):
     template_name = 'item.html'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = super(ItemView, self).get_context_data(**kwargs)
         context.update({
             'STRIPE_PUBLIC_KEY': settings.STRIPE_PUBLIC_KEY,
         })
         return context
+
+
+class SuccessView(TemplateView):
+    template_name = "success.html"
+
+
+class CancelView(TemplateView):
+    template_name = "cancel.html"
