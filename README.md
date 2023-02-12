@@ -26,15 +26,15 @@ docker-compose up -d --build
 ```
 4. Выполните миграции:
 ```
-docker-compose exec web python manage.py migrate
+docker-compose exec app python manage.py migrate
 ```
 5. Создайте суперпользователя:
 ```
-docker-compose exec web python manage.py createsuperuser
+docker-compose exec app python manage.py createsuperuser
 ```
 6. Cоберите статику:
 ```
-docker-compose exec web python manage.py collectstatic --no-input
+docker-compose exec app python manage.py collectstatic --no-input
 ```
 7. Перейдите на страницу администрирования и создайте несколько товаров:  
 http://localhost:8000/admin
